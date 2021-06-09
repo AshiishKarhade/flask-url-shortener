@@ -28,7 +28,8 @@ def your_url():
         else:
             f = request.files['file']
             full_name = request.form['code'] + secure_filename(f.filename)
-            f.save(request.form['code'])
+            f.save(
+                '/Users/ashishkarhade/Developer/tcs-ascend/url-shortener/static/user_files/' + full_name)
             urls[request.form['code']] = {'file': full_name}
 
         with open('urls.json', 'w') as json_file:
@@ -38,3 +39,14 @@ def your_url():
     else:
         return redirect(url_for('home'))
 
+
+@app.route('/<string:code>')
+def redirect_to_url(code):
+    if os.path.exists('urls.json'):
+        with open('urls.json') as url_file:
+            urls = json.load(url_file)
+            if code in urls.keys():
+                if 'url' in urls[code].keys():
+                    return redirect(urls[code]['url'])
+                else:
+                    return redirect(url_for('static', filename='user_files/'+urls[code]['file'] ))
